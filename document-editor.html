@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocuEdit - Document Editor</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="app.js"></script>
+     <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-file-alt"></i>
+                <span>DocuEdit</span>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="shareDocument()">
+                    <i class="fas fa-share"></i>
+                    Share
+                </button>
+                <button class="btn btn-primary" onclick="exportDocument()">
+                    <i class="fas fa-download"></i>
+                    Export
+                </button>
+                <button class="btn btn-primary" onclick="printDocument()">
+                    <i class="fas fa-print"></i>
+                    Print
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Document Header -->
+        <div class="document-header">
+            <input type="text" class="document-title" placeholder="Untitled Document" value="My Document" id="docTitle">
+            <div class="document-meta">
+                <div>
+                    <span>Last edited: </span>
+                    <span id="lastEdited">Just now</span>
+                </div>
+                <div>
+                    <span>Auto-save: </span>
+                    <span class="autosave-on">On</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Editor Container -->
+        <div class="editor-container">
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" onclick="execCommand('undo')" title="Undo">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                    <button class="toolbar-btn" onclick="execCommand('redo')" title="Redo">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                </div>
+
+                <div class="toolbar-group">
+                    <label for="fontFamilySelect" class="visually-hidden">Font Family</label>
+                    <select id="fontFamilySelect" class="toolbar-select" onchange="changeFont(this.value)" title="Font Family">
+                        <option value="Arial">Arial</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Helvetica">Helvetica</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="Verdana">Verdana</option>
+                    </select>
+                    
+                    <div class="font-size-dropdown">
+                        <button class="toolbar-btn" onclick="toggleFontSizeDropdown()">
+                            <span id="currentFontSize">16px</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-content" id="fontSizeDropdown">
+                            <div class="dropdown-item" onclick="changeFontSize('12px')">12px</div>
+                            <div class="dropdown-item" onclick="changeFontSize('14px')">14px</div>
+                            <div class="dropdown-item" onclick="changeFontSize('16px')">16px</div>
+                            <div class="dropdown-item" onclick="changeFontSize('18px')">18px</div>
+                            <div class="dropdown-item" onclick="changeFontSize('20px')">20px</div>
+                            <div class="dropdown-item" onclick="changeFontSize('24px')">24px</div>
+                            <div class="dropdown-item" onclick="changeFontSize('32px')">32px</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" onclick="toggleFormat('bold')" id="boldBtn" title="Bold">
+                        <i class="fas fa-bold"></i>
+                    </button>
+                    <button class="toolbar-btn" onclick="toggleFormat('italic')" id="italicBtn" title="Italic">
+                        <i class="fas fa-italic"></i>
+                    </button>
+                    <button class="toolbar-btn" onclick="toggleFormat('underline')" id="underlineBtn" title="Underline">
+                        <i class="fas fa-underline"></i>
+                    </button>
+                    <button class="toolbar-btn" onclick="toggleFormat('strikeThrough')" id="strikeBtn" title="Strikethrough">
+                        <i class="fas fa-strikethrough"></i>
+                    </button>
+                </div>
+
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" onclick="execCommand('justifyLeft')" title="Align Left">
+                        <i class="fas fa-align-left"></i>
+                    </button>
+                    <button class="toolbar-btn" onclick="execCommand('justifyCenter')" title="Align Center">
+                        <i class="fas fa-align-center"></i>
+                    </button>
+                    <button class="toolbar-btn" onclick="execCommand('justifyRight')" title="Align Right">
+                        <i class="fas fa-align-right"></i>
+                    </button>
+                    <button class="toolbar-btn" onclick="execCommand('justifyFull')" title="Justify">
+                        <i class="fas fa-align-justify"></i>
+                    </button>
+                </div>
+
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" onclick="execCommand('insertOrderedList')" title="Numbered List">
+                        <i class="fas fa-list-ol"></i>
+                    </button>
+                    <button class="toolbar-btn" onclick="execCommand('insertUnorderedList')" title="Bullet List">
+                        <i class="fas fa-list-ul"></i>
+                    </button>
+                    <button class="toolbar-btn" onclick="execCommand('outdent')" title="Decrease Indent">
+                        <i class="fas fa-outdent"></i>
+                    </button>
+                    <button class="toolbar-btn" onclick="execCommand('indent')" title="Increase Indent">
+                        <i class="fas fa-indent"></i>
+                    </button>
+                </div>
+
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" onclick="insertLink()" title="Insert Link">
+                        <i class="fas fa-link"></i>
+                    </button>
+                    <button class="toolbar-btn" onclick="insertImage()" title="Insert Image">
+                        <i class="fas fa-image"></i>
+                    </button>
+                    <button class="toolbar-btn" onclick="insertTable()" title="Insert Table">
+                        <i class="fas fa-table"></i>
+                    </button>
+                </div>
+                 <div class="toolbar-group">
+                    <button class="toolbar-btn" onclick="addPage()" title="Add Page">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button class="toolbar-btn" onclick="deletePage()" title="Delete Page">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    <div class="page-nav">
+                        <button class="toolbar-btn" onclick="prevPage()" title="Previous Page">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <span id="pageIndicator">1 / 1</span>
+                        <button class="toolbar-btn" onclick="nextPage()" title="Next Page">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Editor Content -->
+            <div class="editor-content" id="pageContainer">
+                <div class="page" contenteditable="true" id="editor">
+                    <h1>Welcome to DocuEdit</h1>
+                    <p>Start typing your document here. This is a fully featured document editor with rich text formatting capabilities similar to Google Docs.</p>
+                    <p><strong>Features include:</strong></p>
+                    <ul>
+                        <li>Rich text formatting (bold, italic, underline, strikethrough)</li>
+                        <li>Multiple font families and sizes</li>
+                        <li>Text alignment options</li>
+                        <li>Bulleted and numbered lists</li>
+                        <li>Link and image insertion</li>
+                        <li>Table creation</li>
+                        <li>Auto-save functionality</li>
+                        <li>Export and print capabilities</li>
+                        <li>Responsive design for all devices</li>
+                    </ul>
+                    <p>Try out the formatting tools in the toolbar above!</p>
+                </div>
+            </div>
+
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <div class="status-info">
+                    <span>Page: <span id="currentPage">1</span> of <span id="totalPages">1</span></span>
+                    <span>Words: <span id="wordCount">0</span></span>
+                    <span>Characters: <span id="charCount">0</span></span>
+                </div>
+                <div>
+                    <span id="saveStatus">All changes saved</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay" onclick="closeAllPanels()"></div>
+
+    <!-- Link Panel -->
+    <div class="floating-panel" id="linkPanel">
+        <div class="panel-header">
+            <h3 class="panel-title">Insert Link</h3>
+            <button class="close-btn" onclick="closeAllPanels()">×</button>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Link Text:</label>
+            <input type="text" class="form-input" id="linkText" placeholder="Enter link text">
+        </div>
+        <div class="form-group">
+            <label class="form-label">URL:</label>
+            <input type="url" class="form-input" id="linkUrl" placeholder="https://example.com">
+        </div>
+        <div class="form-actions">
+            <button class="btn btn-secondary" onclick="closeAllPanels()">Cancel</button>
+            <button class="btn btn-success" onclick="createLink()">Insert Link</button>
+        </div>
+    </div>
+
+    <!-- Image Panel -->
+    <div class="floating-panel" id="imagePanel">
+        <div class="panel-header">
+            <h3 class="panel-title">Insert Image</h3>
+            <button class="close-btn" onclick="closeAllPanels()">×</button>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Image URL:</label>
+            <input type="url" class="form-input" id="imageUrl" placeholder="https://example.com/image.jpg">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Alt Text:</label>
+            <input type="text" class="form-input" id="imageAlt" placeholder="Description of the image">
+        </div>
+        <div class="form-actions">
+            <button class="btn btn-secondary" onclick="closeAllPanels()">Cancel</button>
+            <button class="btn btn-success" onclick="createImage()">Insert Image</button>
+        </div>
+    </div>
+
+    <!-- Table Panel -->
+    <div class="floating-panel" id="tablePanel">
+        <div class="panel-header">
+            <h3 class="panel-title">Insert Table</h3>
+            <button class="close-btn" onclick="closeAllPanels()">×</button>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Rows:</label>
+            <input type="number" class="form-input" id="tableRows" value="3" min="1" max="20" placeholder="Enter number of rows" title="Number of rows for the table">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Columns:</label>
+            <input type="number" class="form-input" id="tableCols" value="3" min="1" max="10" title="Number of columns for the table" placeholder="Enter number of columns">
+        </div>
+        <div class="form-actions">
+            <button class="btn btn-secondary" onclick="closeAllPanels()">Cancel</button>
+            <button class="btn btn-success" onclick="createTable()">Insert Table</button>
+        </div>
+    </div>
+
+    <!-- Share Panel -->
+    <div class="floating-panel" id="sharePanel">
+        <div class="panel-header">
+            <h3 class="panel-title">Share Document</h3>
+            <button class="close-btn" onclick="closeAllPanels()">×</button>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Share Link:</label>
+            <input type="text" class="form-input" id="shareLink" value="https://docuedit.com/doc/abc123" readonly="" title="Shareable document link" placeholder="Shareable document link">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Email Addresses:</label>
+            <input type="email" class="form-input" id="shareEmails" placeholder="Enter email addresses separated by commas">
+        </div>
+        <div class="form-actions">
+            <button class="btn btn-secondary" onclick="closeAllPanels()">Cancel</button>
+            <button class="btn btn-success" onclick="sendShare()">Share</button>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let editor = document.getElementById('editor');
+        let saveTimeout;
+        let lastSaveTime = new Date();
+
+        // Initialize editor
+        document.addEventListener('DOMContentLoaded', function() {
+            updateWordCount();
+            updateLastEdited();
+            
+            // Auto-save functionality
+            editor.addEventListener('input', function() {
+                updateWordCount();
+                updateSaveStatus('Saving...');
+                
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(() => {
+                    autoSave();
+                }, 2000);
+            });
+
+            // Update formatting buttons based on selection
+            document.addEventListener('selectionchange', updateFormattingButtons);
+            
+            // Load saved content
+            loadDocument();
+        });
+
+        // Command execution
+        function execCommand(command, value = null) {
+            document.execCommand(command, false, value);
+            editor.focus();
+            updateFormattingButtons();
+        }
+
+        // Toggle formatting
+        function toggleFormat(command) {
+            execCommand(command);
+            updateFormattingButtons();
+        }
+
+        // Update formatting button states
+        function updateFormattingButtons() {
+            const commands = ['bold', 'italic', 'underline', 'strikeThrough'];
+            commands.forEach(command => {
+                const btn = document.getElementById(command + 'Btn');
+                if (btn) {
+                    if (document.queryCommandState(command)) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                }
+            });
+        }
+
+        // Font management
+        function changeFont(fontFamily) {
+            execCommand('fontName', fontFamily);
+        }
+
+        function toggleFontSizeDropdown() {
+            const dropdown = document.getElementById('fontSizeDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        function changeFontSize(size) {
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                const span = document.createElement('span');
+                span.style.fontSize = size;
+                
+                try {
+                    range.surroundContents(span);
+                } catch (e) {
+                    span.appendChild(range.extractContents());
+                    range.insertNode(span);
+                }
+                
+                selection.removeAllRanges();
+            }
+            
+            document.getElementById('currentFontSize').textContent = size;
+            document.getElementById('fontSizeDropdown').classList.remove('show');
+            editor.focus();
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.font-size-dropdown')) {
+                document.getElementById('fontSizeDropdown').classList.remove('show');
+            }
+        });
+
+        // Panel management
+        function showPanel(panelId) {
+            closeAllPanels();
+            document.getElementById('overlay').classList.add('active');
+            document.getElementById(panelId).classList.add('active');
+        }
+
+        function closeAllPanels() {
+            document.getElementById('overlay').classList.remove('active');
+            document.querySelectorAll('.floating-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+        }
+
+        // Link insertion
+        function insertLink() {
+            const selection = window.getSelection();
+            const selectedText = selection.toString();
+            
+            if (selectedText) {
+                document.getElementById('linkText').value = selectedText;
+            }
+            
+            showPanel('linkPanel');
+        }
+
+        function createLink() {
+            const text = document.getElementById('linkText').value;
+            const url = document.getElementById('linkUrl').value;
+            
+            if (text && url) {
+                const link = `<a href="${url}" target="_blank">${text}</a>`;
+                execCommand('insertHTML', link);
+                closeAllPanels();
+                
+                // Clear form
+                document.getElementById('linkText').value = '';
+                document.getElementById('linkUrl').value = '';
+            }
+        }
+
+        // Image insertion
+        function insertImage() {
+            showPanel('imagePanel');
+        }
+
+        function createImage() {
+            const url = document.getElementById('imageUrl').value;
+            const alt = document.getElementById('imageAlt').value;
+            
+            if (url) {
+                const img = `<img src="${url}" alt="${alt}" style="max-width: 100%; height: auto; margin: 10px 0;">`;
+                execCommand('insertHTML', img);
+                closeAllPanels();
+                
+                // Clear form
+                document.getElementById('imageUrl').value = '';
+                document.getElementById('imageAlt').value = '';
+            }
+        }
+
+        // Table insertion
+        function insertTable() {
+            showPanel('tablePanel');
+        }
+
+        function createTable() {
+            const rows = parseInt(document.getElementById('tableRows').value);
+            const cols = parseInt(document.getElementById('tableCols').value);
+            
+            let tableHTML = '<table border="1" style="border-collapse: collapse; width: 100%; margin: 10px 0;">';
+            
+            for (let i = 0; i < rows; i++) {
+                tableHTML += '<tr>';
+                for (let j = 0; j < cols; j++) {
+                    tableHTML += '<td style="border: 1px solid #ddd; padding: 8px; min-width: 100px; min-height: 30px;">&nbsp;</td>';
+                }
+                tableHTML += '</tr>';
+            }
+            
+            tableHTML += '</table>';
+            
+            execCommand('insertHTML', tableHTML);
+            closeAllPanels();
+        }
+
+        let currentPageIndex = 0;
+        let pages = [editor];
+
+        function addPage() {
+            const newPage = document.createElement('div');
+            newPage.className = 'page';
+            newPage.contentEditable = true;
+            document.getElementById('pageContainer').appendChild(newPage);
+            pages.push(newPage);
+            switchPage(pages.length - 1);
+        }
+
+        function deletePage() {
+            if (pages.length > 1) {
+                const pageToDelete = pages[currentPageIndex];
+                pageToDelete.remove();
+                pages.splice(currentPageIndex, 1);
+                if (currentPageIndex >= pages.length) {
+                    currentPageIndex = pages.length - 1;
+                }
+                switchPage(currentPageIndex);
+            }
+        }
+
+        function switchPage(index) {
+            if (pages[currentPageIndex]) {
+                pages[currentPageIndex].classList.remove('active');
+            }
+            currentPageIndex = index;
+            editor = pages[currentPageIndex];
+            if (pages[currentPageIndex]) {
+                pages[currentPageIndex].classList.add('active');
+                editor.focus();
+            }
+            updatePageIndicator();
+            updateWordCount();
+        }
+
+        function nextPage() {
+            if (currentPageIndex < pages.length - 1) {
+                switchPage(currentPageIndex + 1);
+            }
+        }
+
+        function prevPage() {
+            if (currentPageIndex > 0) {
+                switchPage(currentPageIndex - 1);
+            }
+        }
+
+        function updatePageIndicator() {
+            document.getElementById('pageIndicator').textContent = `${currentPageIndex + 1} / ${pages.length}`;
+            document.getElementById('currentPage').textContent = currentPageIndex + 1;
+            document.getElementById('totalPages').textContent = pages.length;
+        }
+
+        // Word and character count
+        function updateWordCount() {
+            const text = editor.innerText || editor.textContent || '';
+            const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+            const characters = text.length;
+            
+            document.getElementById('wordCount').textContent = words.length;
+            document.getElementById('charCount').textContent = characters;
+        }
+
+        // Save functionality
+        function autoSave() {
+            const title = document.getElementById('docTitle').value;
+            const pagesContent = pages.map(page => page.innerHTML);
+            
+            // Save to localStorage
+            localStorage.setItem('docuEditContent', JSON.stringify(pagesContent));
+            localStorage.setItem('docuEditTitle', title);
+            
+            lastSaveTime = new Date();
+            updateSaveStatus('All changes saved');
+            updateLastEdited();
+        }
+
+        function loadDocument() {
+            const savedTitle = localStorage.getItem('docuEditTitle');
+            if (savedTitle) {
+                document.getElementById('docTitle').value = savedTitle;
+            }
+
+            const savedContent = localStorage.getItem('docuEditContent');
+            if (savedContent) {
+                const pagesContent = JSON.parse(savedContent);
+                const pageContainer = document.getElementById('pageContainer');
+                pageContainer.innerHTML = '';
+                pages = [];
+
+                pagesContent.forEach((content, index) => {
+                    const newPage = document.createElement('div');
+                    newPage.className = 'page';
+                    newPage.contentEditable = true;
+                    newPage.innerHTML = content;
+                    pageContainer.appendChild(newPage);
+                    pages.push(newPage);
+                });
+
+                switchPage(0);
+            } else {
+                // if no saved content, initialize with one page
+                switchPage(0);
+            }
+            
+            updateWordCount();
+        }
+
+        function updateSaveStatus(status) {
+            document.getElementById('saveStatus').textContent = status;
+        }
+
+        function updateLastEdited() {
+            const now = new Date();
+            const diff = now - lastSaveTime;
+            
+            let timeText;
+            if (diff < 60000) {
+                timeText = 'Just now';
+            } else if (diff < 3600000) {
+                timeText = Math.floor(diff / 60000) + ' minutes ago';
+            } else {
+                timeText = Math.floor(diff / 3600000) + ' hours ago';
+            }
+            
+            document.getElementById('lastEdited').textContent = timeText;
+        }
+
+        // Share functionality
+        function shareDocument() {
+            showPanel('sharePanel');
+        }
+
+        function sendShare() {
+            const emails = document.getElementById('shareEmails').value;
+            
+            if (emails) {
+                // Simulate sharing
+                alert('Document shared successfully with: ' + emails);
+                closeAllPanels();
+                document.getElementById('shareEmails').value = '';
+            }
+        }
+
+              // Export functionality
+              function exportDocument() {
+              const title = document.getElementById('docTitle').value || 'Document';
+               const content = editor.innerHTML;
+            
+        }
+            </script>
+            </body>
+            </html>
